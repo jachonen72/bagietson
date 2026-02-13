@@ -12,28 +12,27 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            /* Czerwono-różowe tło */
-            background: linear-gradient(to bottom, #ffcccc, #ff9999);
+            /* Zmieniamy tło na lekko różowe/czerwone, żeby nie było takie białe */
+            background: linear-gradient(to bottom, #ffe6e6, #ffcccc);
             overflow: hidden;
             font-family: 'Segoe UI', sans-serif;
         }
 
         .container {
             text-align: center;
-            z-index: 100; /* Musi być wysoko, żeby serduszka nie zasłoniły napisu */
-            background: rgba(255, 255, 255, 0.9);
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.85); /* Bardziej przezroczyste tło */
             padding: 40px;
             border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            border: 3px solid #ff7675;
-            max-width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border: 2px solid #ff7675; /* Czerwona ramka */
         }
 
         h1 {
             color: #d63031;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             margin-bottom: 40px;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
         }
 
         .buttons {
@@ -43,39 +42,41 @@
         }
 
         button {
-            padding: 15px 0;
-            width: 150px;    /* Równe przyciski */
+            padding: 15px 0; /* Padding góra/dół */
+            width: 150px;    /* SZTYWNA SZEROKOŚĆ - żeby były równe */
             font-size: 1.3rem;
             border: none;
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transition: left 0.5s ease-out, top 0.5s ease-out; /* Płynna ucieczka */
+            /* Płynna ucieczka przycisku NIE */
+            transition: left 0.5s ease-out, top 0.5s ease-out;
         }
 
         #yesBtn {
             background-color: #2ecc71;
             color: white;
             z-index: 101;
+            /* Żeby stał stabilnie w miejscu, ale był ładnie wycentrowany */
             margin-right: 0; 
         }
 
         #noBtn {
             background-color: #e74c3c;
             color: white;
-            position: absolute;
+            position: absolute; /* Uciekinier */
             z-index: 100;
         }
 
-        /* Tło - mnóstwo serduszek */
+        /* Tło - dużo serduszek */
         .heart {
             position: absolute;
-            color: #d63031; /* Ciemniejsza czerwień */
+            color: #ff7675;
+            font-size: 20px;
             pointer-events: none;
-            animation: pulse 3s infinite ease-in-out;
-            opacity: 0.7;
-            z-index: 1; /* Pod napisem */
+            animation: pulse 2s infinite ease-in-out;
+            opacity: 0.6;
         }
 
         @keyframes pulse {
@@ -89,7 +90,7 @@
             height: 8px;
             border-radius: 50%;
             pointer-events: none;
-            z-index: 9999;
+            z-index: 9999; /* Bardzo wysoko, nad wszystkim */
         }
     </style>
 </head>
@@ -109,31 +110,36 @@
     </div>
 
     <script>
-        // --- 750 SERDUSZEK ---
-        for (let i = 0; i < 750; i++) {
+        // --- TŁO: DUŻO WIĘCEJ SERDUSZEK (450 sztuk) ---
+        for (let i = 0; i < 450; i++) {
             const heart = document.createElement('div');
             heart.className = 'heart';
             heart.innerHTML = '❤️';
             heart.style.left = Math.random() * 100 + 'vw';
             heart.style.top = Math.random() * 100 + 'vh';
-            // Różne rozmiary dla lepszego efektu
-            heart.style.fontSize = (Math.random() * 25 + 10) + 'px'; 
-            heart.style.animationDelay = Math.random() * 5 + 's';
+            // Losowa wielkość serduszek dla lepszego efektu
+            heart.style.fontSize = (Math.random() * 20 + 10) + 'px'; 
+            heart.style.animationDelay = Math.random() * 2 + 's';
             document.body.appendChild(heart);
         }
 
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
 
-        // Ustawienie początkowe przycisku NIE
+        // --- POZYCJONOWANIE PRZYCISKÓW ---
+        // Ustawiamy przycisk NIE w pewnej odległości od TAK
+        // Żeby wyglądały na równe, pobieramy pozycję TAK i przesuwamy NIE
+        
         let currentX = 0;
         let currentY = 0;
 
         function initNoBtn() {
             const yesRect = yesBtn.getBoundingClientRect();
+            // Ustaw NIE około 200px na prawo od TAK (jeśli się zmieści)
             currentX = yesRect.right + 100;
             currentY = yesRect.top;
             
+            // Jeśli ekran jest mały (telefon), daj go pod spód
             if (window.innerWidth < 600) {
                 currentX = yesRect.left;
                 currentY = yesRect.bottom + 50;
@@ -143,9 +149,9 @@
             noBtn.style.top = currentY + 'px';
         }
         
+        // Czekamy chwilę aż strona się załaduje, żeby dobrze pobrać pozycje
         window.onload = initNoBtn;
 
-        // Uciekanie przycisku (zasięg 5cm / 200px)
         document.addEventListener('mousemove', (e) => {
             const mouseX = e.clientX;
             const mouseY = e.clientY;
@@ -156,6 +162,7 @@
 
             const distance = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
 
+            // --- STREFA OCHRONNA 5 CM (ok. 200px) ---
             if (distance < 200) {
                 const angle = Math.atan2(btnCenterY - mouseY, btnCenterX - mouseX);
                 
@@ -175,14 +182,16 @@
         });
 
         function celebrate() {
-            // Zmiana napisu na ten o zdrowiu
+            // Zmiana napisu
             const title = document.getElementById('mainTitle');
-            title.innerHTML = "OŁ jeeeaaa!!! ❤️<br>!";
+            title.innerHTML = "oł jeeeaa ❤️";
+            title.style.fontSize = "4rem"; // Powiększamy napis
             
             noBtn.style.display = 'none';
-            yesBtn.style.display = 'none';
+            yesBtn.style.display = 'none'; // Ukrywamy też przycisk TAK po kliknięciu
             
-            // Fajerwerki na całym ekranie
+            // --- FAJERWERKI NA CAŁYM EKRANIE ---
+            // Tworzymy ich dużo (300) i w losowych miejscach
             for(let i=0; i<300; i++) {
                 setTimeout(createFirework, i * 10);
             }
@@ -195,11 +204,13 @@
             f.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
             document.body.appendChild(f);
             
+            // Start w losowym miejscu na dole lub środku
             const startX = Math.random() * window.innerWidth;
             const startY = Math.random() * window.innerHeight;
             
+            // Kierunek wybuchu
             const angle = Math.random() * Math.PI * 2;
-            const dist = 100 + Math.random() * 400;
+            const dist = 100 + Math.random() * 400; // Duży rozrzut
             
             const destX = startX + Math.cos(angle) * dist;
             const destY = startY + Math.sin(angle) * dist;
