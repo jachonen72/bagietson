@@ -47,8 +47,8 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            /* Płynny ruch - tutaj kontrolujemy prędkość "ucieczki" */
-            transition: all 0.4s ease-out;
+            /* KLUCZ DO SUKCESU: Wolne i płynne przejście */
+            transition: left 0.6s ease-out, top 0.6s ease-out, transform 0.2s;
         }
 
         #yesBtn {
@@ -64,18 +64,19 @@
             z-index: 100;
         }
 
+        /* Tło - serduszka */
         .heart {
             position: absolute;
             color: #ff7675;
             font-size: 20px;
-            user-select: none;
             pointer-events: none;
             animation: pulse 2s infinite ease-in-out;
+            opacity: 0.5;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.3); opacity: 0.7; }
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
         }
     </style>
 </head>
@@ -90,21 +91,24 @@
     </div>
 
     <script>
-        // Tło z serduszek
-        for (let i = 0; i < 50; i++) {
+        // Generowanie serduszek w tle
+        for (let i = 0; i < 40; i++) {
             const heart = document.createElement('div');
             heart.className = 'heart';
             heart.innerHTML = '❤️';
             heart.style.left = Math.random() * 100 + 'vw';
             heart.style.top = Math.random() * 100 + 'vh';
-            heart.style.animationDelay = Math.random() * 2 + 's';
             document.body.appendChild(heart);
         }
 
         const noBtn = document.getElementById('noBtn');
         
-        // Ustawienie początkowe przycisku "NIE" obok przycisku "TAK"
-        noBtn.style.left = "200px"; 
+        // Ustawienie początkowe przycisku "NIE" (trochę na bok)
+        let currentLeft = window.innerWidth / 2 + 60;
+        let currentTop = window.innerHeight / 2 + 50;
+        
+        noBtn.style.left = currentLeft + 'px';
+        noBtn.style.top = currentTop + 'px';
 
         document.addEventListener('mousemove', (e) => {
             const mouseX = e.clientX;
@@ -116,31 +120,29 @@
 
             const distance = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
 
-            // PRZYCISK ZACZNIE UCIEKAĆ DOPIERO GDY MYSZKA BĘDZIE BARDZO BLISKO (70px)
-            if (distance < 70) {
-                // Obliczamy kąt między myszką a przyciskiem
+            // Jeśli kursor jest blisko (90px), przycisk zaczyna powoli odpływać
+            if (distance < 90) {
                 const angle = Math.atan2(btnCenterY - mouseY, btnCenterX - mouseX);
                 
-                // Przycisk odjeżdża tylko o 120 pikseli (płynniej niż wcześniej)
-                let newX = btnRect.left + Math.cos(angle) * 120;
-                let newY = btnRect.top + Math.sin(angle) * 120;
+                // Mały krok ucieczki (tylko 60px), ale płynnie dzięki CSS transition
+                currentLeft += Math.cos(angle) * 150;
+                currentTop += Math.sin(angle) * 150;
 
-                // Sprawdzanie granic ekranu (żeby nie uciekł za daleko)
-                const padding = 50;
-                if (newX < padding) newX = window.innerWidth - btnRect.width - padding;
-                if (newX + btnRect.width > window.innerWidth - padding) newX = padding;
-                if (newY < padding) newY = window.innerHeight - btnRect.height - padding;
-                if (newY + btnRect.height > window.innerHeight - padding) newY = padding;
+                // Zabezpieczenie przed ucieczką poza ekran
+                if (currentLeft < 20) currentLeft = window.innerWidth - 150;
+                if (currentLeft > window.innerWidth - 100) currentLeft = 20;
+                if (currentTop < 20) currentTop = window.innerHeight - 100;
+                if (currentTop > window.innerHeight - 50) currentTop = 20;
 
-                noBtn.style.left = newX + 'px';
-                noBtn.style.top = newY + 'px';
+                noBtn.style.left = currentLeft + 'px';
+                noBtn.style.top = currentTop + 'px';
             }
         });
 
         function celebrate() {
             document.getElementById('mainTitle').innerHTML = "Wiedziałem! ❤️<br>Szybko wracaj do zdrowia!";
             noBtn.style.display = 'none';
-            alert("To umówione! ❤️");
+            alert("Najlepsza decyzja! ❤️");
         }
     </script>
 </body>
