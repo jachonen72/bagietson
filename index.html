@@ -57,7 +57,6 @@
             cursor: pointer;
             font-weight: 600;
             box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-            /* Ważne: usuwamy domyślne transition dla left/top, sterujemy tym w JS */
             transition: transform 0.2s, background-color 0.3s; 
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -81,26 +80,7 @@
         }
 
         #noBtnVal {
-            position: relative; /* Na start grzecznie w rzędzie */
-        }
-
-        #foodInputContainer {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        #foodInput {
-            padding: 15px;
-            border-radius: 30px;
-            border: none;
-            width: 80%;
-            max-width: 300px;
-            font-size: 1.1rem;
-            text-align: center;
-            outline: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         .heart {
@@ -171,7 +151,6 @@
 
         // --- LOGIKA UCIEKANIA (Tylko dla Etapu 1) ---
         document.addEventListener('mousemove', (e) => {
-            // Jeśli to nie jest etap 1, nic nie rób
             if (currentStage !== 1) return;
 
             const mouseX = e.clientX;
@@ -183,10 +162,8 @@
             
             const distance = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
 
-            // Zwiększyłem zasięg do 200px dla pewności
             if (distance < 200) {
                 if (!isRunning) {
-                    // Pierwsze uruchomienie ucieczki
                     isRunning = true;
                     currentX = btnRect.left;
                     currentY = btnRect.top;
@@ -194,29 +171,24 @@
                     noBtnVal.style.position = 'fixed'; 
                     noBtnVal.style.left = currentX + 'px';
                     noBtnVal.style.top = currentY + 'px';
-                    noBtnVal.style.zIndex = '1000'; // Zawsze na wierzchu
-                    // Płynność ruchu
+                    noBtnVal.style.zIndex = '1000'; 
                     noBtnVal.style.transition = 'left 0.4s ease-out, top 0.4s ease-out';
                 }
 
                 const angle = Math.atan2(btnCenterY - mouseY, btnCenterX - mouseX);
-                const moveDist = 300; // Skok ucieczki
+                const moveDist = 300; 
                 
                 currentX += Math.cos(angle) * moveDist;
                 currentY += Math.sin(angle) * moveDist;
                 
-                // --- ODBIJANIE OD ŚCIAN (Poprawione) ---
+                // Odbijanie od ścian
                 const margin = 50;
                 const maxX = window.innerWidth - margin - noBtnVal.offsetWidth;
                 const maxY = window.innerHeight - margin - noBtnVal.offsetHeight;
 
-                // Jeśli wyleci w lewo -> przenieś na prawo
                 if (currentX < margin) currentX = maxX - 50;
-                // Jeśli wyleci w prawo -> przenieś na lewo
                 if (currentX > maxX) currentX = margin + 50;
-                // Jeśli wyleci w górę -> przenieś na dół
                 if (currentY < margin) currentY = maxY - 50;
-                // Jeśli wyleci w dół -> przenieś na górę
                 if (currentY > maxY) currentY = margin + 50;
 
                 noBtnVal.style.left = currentX + 'px';
@@ -226,7 +198,7 @@
 
         function goToStage2() {
             startMusic();
-            currentStage = 2; // Zmieniamy etap - przycisk przestaje uciekać
+            currentStage = 2; // Wyłączamy uciekanie
             
             const title = document.getElementById('mainTitle');
             const stage1 = document.getElementById('stage1Buttons');
@@ -263,7 +235,7 @@
                     playerVars: {
                         'autoplay': 1,
                         'controls': 0,
-                        'start': 3,
+                        'start': 4, // START OD 4 SEKUNDY
                         'loop': 1
                     },
                     events: {
