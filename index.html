@@ -226,22 +226,33 @@
             triggerFireworks();
         }
 
+        // --- KONFIGURACJA MUZYKI ---
         function startMusic() {
             if (typeof YT !== 'undefined' && YT && YT.Player) {
                 new YT.Player('youtube-player', {
                     height: '0',
                     width: '0',
-                    videoId: 'U-l4ya3ejko', // NOWA PIOSENKA
+                    // Startujemy od "Walking On A Dream"
+                    videoId: 'U-l4ya3ejko', 
                     playerVars: {
                         'autoplay': 1,
                         'controls': 0,
-                        'start': 0, // START OD POCZĄTKU (0s)
-                        'loop': 1
+                        'start': 0, 
+                        'loop': 0 // WYŁĄCZONA pętla, żeby wykryć koniec
                     },
                     events: {
                         'onReady': function(event) {
                             event.target.setVolume(25); 
                             event.target.playVideo();
+                        },
+                        // Funkcja wykrywająca zmianę stanu (np. koniec filmu)
+                        'onStateChange': function(event) {
+                            // Stan 0 oznacza "KONIEC FILMU"
+                            if (event.data === 0) {
+                                // Ładujemy drugą piosenkę: The Weeknd - Save Your Tears
+                                event.target.loadVideoById('-0QiCWGmBcw');
+                                // Druga piosenka będzie się już zapętlać
+                            }
                         }
                     }
                 });
